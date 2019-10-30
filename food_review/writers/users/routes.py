@@ -24,7 +24,7 @@ def register():
         user = User(db, user_data)
         user.save()
         return redirect(url_for('users.login'))
-    return render_template('admin/register.html')        
+    return render_template('writers/register.html')        
     
 @users.route('/logout')
 def logout():

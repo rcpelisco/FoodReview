@@ -26,9 +26,9 @@ from food_review.front_page.users.routes import users as front_page_users
 from food_review.front_page.recipes.routes import recipes as front_page_recipes
 from food_review.front_page.recipes.reviews.routes import reviews as front_page_recipes_reviews
 
-app.register_blueprint(writers, url_prefix='/writer')
-app.register_blueprint(writers_users, url_prefix='/writer')
-app.register_blueprint(writers_recipes, url_prefix='/writer/recipes')
+app.register_blueprint(writers, url_prefix='/writers')
+app.register_blueprint(writers_users, url_prefix='/writers')
+app.register_blueprint(writers_recipes, url_prefix='/writers/recipes')
 
 app.register_blueprint(front_page, url_prefix='/')
 app.register_blueprint(front_page_users, url_prefix='/')
