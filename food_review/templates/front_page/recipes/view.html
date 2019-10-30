@@ -43,20 +43,43 @@
           <div class="col-sm-6">
             <h3>Reviews</h3>
           </div>
-          <div class="col-sm-6">
-            <h3 class="pull-right">⭐⭐⭐⭐⭐</h3>
-          </div>
+          <!-- <div class="col-sm-6">
+            <h3 class="pull-right">
+              <div class="average-rating text-primary">
+                {% for star in range(5) %}
+                <i class="fa fa-star"></i>
+                {% endfor %}
+              </div>
+            </h3>
+          </div> -->
         </div>
         <hr>
+        {% if recipe.reviews|length < 1 %}
+        <div class="col-md-12">
+          <div class="div">
+            <h4>No reviews for this recipe yet.</h4>
+            <p class="lead">Be the first one to write a review for this recipe.</p>
+          </div>
+        </div>
+        {% else %}
         {% for review in recipe.reviews %}
         <div class="media">
-          <div class="media-body">
+          <div class="media-body ml-3">
             <h5 class="mt-0">{{ review.user.name }}</h5>
+            <div class="review-rating text-primary">
+              {% for star in range(review.rating) %}
+              <i class="fa fa-star"></i>
+              {% endfor %}
+              {% for star in range(5 - review.rating) %}
+              <i class="fa fa-star-o"></i>
+              {% endfor %}
+            </div>
             {{ review.content }}
           </div>
         </div>
         <hr>
         {% endfor %}
+        {% endif %}
       </div>
     </div>
   </div>
@@ -76,11 +99,21 @@
         </div>
         <div class="modal-body">
           <div class="form-group">
-            <label for="content">Description</label>
-            <textarea name="content" id="content" class="form-control"
-              rows="5"></textarea>
+            <label for="content">Rating</label>
+            <div class="star-rating text-primary">
+              <span class="fa fa-star-o" data-rating="1"></span>
+              <span class="fa fa-star-o" data-rating="2"></span>
+              <span class="fa fa-star-o" data-rating="3"></span>
+              <span class="fa fa-star-o" data-rating="4"></span>
+              <span class="fa fa-star-o" data-rating="5"></span>
+              <input type="hidden" name="rating" id="rating" class="rating-value" value="4">
+            </div>
           </div>
-          
+          <div class="form-group">
+            <label for="content">Review</label>
+            <textarea name="content" id="content" class="form-control"
+              rows="5" placeholder="What are your thoughts on the recipe?"></textarea>
+          </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -91,3 +124,30 @@
   </div>
 </div>
 {% endblock content %}
+
+{% block scripts %}
+<script>
+  var $star_rating = $('.star-rating .fa');
+
+  var SetRatingStar = function() {
+    return $star_rating.each(function() {
+      if (parseInt($star_rating.siblings('input.rating-value').val()) >= parseInt($(this).data('rating'))) {
+        return $(this).removeClass('fa-star-o').addClass('fa-star');
+      } else {
+        return $(this).removeClass('fa-star').addClass('fa-star-o');
+      }
+    });
+  };
+
+  $star_rating.on('click', function() {
+    $star_rating.siblings('input.rating-value').val($(this).data('rating'));
+    return SetRatingStar();
+  });
+
+  SetRatingStar();
+
+  $(document).ready(function() {
+
+  });
+</script>
+{% endblock scripts %}

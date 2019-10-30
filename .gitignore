@@ -1,3 +1,4 @@
 env
 .vscode
 **/__pycache__
+food_review/static/uploads

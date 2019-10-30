@@ -14,7 +14,7 @@ def before_request():
 def save():
     review_data = {
         'content': request.form['content'],
-        'rating': 5,
+        'rating': request.form['rating'],
         'recipe_id': request.form['recipe_id'],
         'user_id': g.user['id']
     }
