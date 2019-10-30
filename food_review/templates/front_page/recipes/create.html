@@ -1,0 +1,34 @@
+{% extends "front_page/master.html" %}
+
+{% block content %}
+<br>
+<div class="row justify-content-sm-center">
+    <div class="col-sm-6">
+        <div class="card">
+            <div class="card-body">
+                <h3>Add Recipe</h3>
+                <hr>
+                <form action="{{ url_for('writers.recipes.save') }}" method="POST" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="name">Name</label>
+                        <input type="text" name="name" id="name" 
+                            class="form-control" placeholder="Name">
+                    </div>
+                    <div class="form-group">
+                        <label for="description">Description</label>
+                        <textarea name="description" id="description" class="form-control"
+                            rows="5"></textarea>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-md-6">
+                            <label for="image">Image</label>
+                            <input type="file" name="image" id="image">
+                        </div>
+                    </div>
+                    <input type="submit" value="Post Recipe" class="btn btn-primary pull-right">
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

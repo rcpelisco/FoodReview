@@ -1,0 +1,65 @@
+{% extends "admin/master-external.html" %}
+
+{% block content %}
+<div class="col-md-6">
+  <div class="card mx-4">
+    <div class="card-body p-4">
+      <form action="{{ url_for('users.register') }}" method="POST">
+        <h1>Register</h1>
+        <p class="text-muted">Create your account</p>
+        <div class="input-group mb-3">
+          <div class="input-group-prepend">
+            <span class="input-group-text">
+              <i class="icon-user"></i>
+            </span>
+          </div>
+          <input type="text" name="username" id="username" 
+            class="form-control" placeholder="Username">
+        </div>
+        <div class="input-group mb-3">
+          <div class="input-group-prepend">
+            <span class="input-group-text">@</span>
+          </div>
+          <input type="email" name="email" id="email" 
+            class="form-control" placeholder="Email">
+        </div>
+        <div class="input-group mb-3">
+          <div class="input-group-prepend">
+            <span class="input-group-text">
+              <i class="icon-user"></i>
+            </span>
+          </div>
+          <input type="text" name="name" id="name" 
+            class="form-control" placeholder="Name">
+        </div>
+        <div class="input-group mb-3">
+          <div class="input-group-prepend">
+            <span class="input-group-text">
+              <i class="icon-lock"></i>
+            </span>
+          </div>
+          <input type="password" name="password" id="password" 
+            class="form-control" placeholder="Password">
+        </div>
+        <div class="input-group mb-4">
+          <div class="input-group-prepend">
+            <span class="input-group-text">
+              <i class="icon-lock"></i>
+            </span>
+          </div>
+          <input type="password" name="confirm_password" id="confirm_password" 
+            class="form-control" placeholder="Confirm Password">
+        </div>
+        <button class="btn btn-block btn-success" type="submit">Create Account</button>
+      </form>
+    </div>
+    <div class="card-footer p-4">
+      <div class="row">
+        <div class="col-12">
+          <p>Login <a href="{{ url_for('users.login') }}">here.</a> If you already have an account.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}

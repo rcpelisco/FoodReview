@@ -1,0 +1,93 @@
+{% extends 'front_page/master.html' %}
+
+{% block content %}
+<div class="container">
+
+<br>
+<div class="card">
+  <div class="card-body">
+    <div class="row">
+      <div class="col-md-4">
+        <img src="{{ url_for('static', filename='uploads/img/') }}/{{ recipe.img_path }}" 
+          class="img-fluid" focusable="false" role="img" style="padding-bottom: 250px;">
+      </div>
+      <div class="col-md-8">
+        <h2 class="card-title">{{ recipe.name }}</h2>
+        <small>by <a href="">{{ recipe.writer.name }}</a></small>
+        <hr>
+        <p class="card-text">
+          {{ recipe.description }}
+        </p>
+        <hr>
+        <br>
+        <h3>Ingredients</h3>
+        <hr>
+        <ul>
+          <li> asdasdasdasdasd</li>
+          <li> asdasdasdasdasd</li>
+          <li> asdasdasdasdasd</li>
+          <li> asdasdasdasdasd</li>
+          <li> asdasdasdasdasd</li>
+        </ul>
+        <hr>
+        <div class="row">
+          <div class="col">
+            <button class="btn btn-outline-primary pull-right" data-toggle="modal"
+              data-target="#reviewModal">
+              <i class="fa fa-pencil-square-o"></i> Write a review
+            </button>
+          </div>
+        </div>
+        <br>
+        <div class="row">
+          <div class="col-sm-6">
+            <h3>Reviews</h3>
+          </div>
+          <div class="col-sm-6">
+            <h3 class="pull-right">⭐⭐⭐⭐⭐</h3>
+          </div>
+        </div>
+        <hr>
+        {% for review in recipe.reviews %}
+        <div class="media">
+          <div class="media-body">
+            <h5 class="mt-0">{{ review.user.name }}</h5>
+            {{ review.content }}
+          </div>
+        </div>
+        <hr>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="reviewModal" tabindex="-1" role="dialog" 
+  aria-labelledby="reviewModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <form action="{{ url_for('recipes.reviews.save') }}" method="POST">
+        <input type="hidden" name="recipe_id" value="{{ recipe.id }}">
+        <div class="modal-header">
+          <h5 class="modal-title" id="reviewModalLabel">Write your review</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="content">Description</label>
+            <textarea name="content" id="content" class="form-control"
+              rows="5"></textarea>
+          </div>
+          
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <input type="submit" value="Post Review" class="btn btn-primary pull-right">
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock content %}

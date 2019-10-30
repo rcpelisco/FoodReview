@@ -1,0 +1,78 @@
+{% extends 'front_page/master.html' %}
+
+{% block jumbotron %}
+<section class="jumbotron text-center">
+    <div class="container">
+      <h1 class="jumbotron-heading">Pampanga's Best Recipes</h1>
+      <p class="lead text-muted">👏 Food 👏 Review!</p>
+    </div>
+</section>
+{% endblock jumbotron %}
+
+{% block content %}
+<div class="album py-5 bg-light">
+    <div class="container">
+
+    <div class="row">
+
+        {% if recipes|length < 1 %}
+        <div class="col-md-12">
+            <div class="div">
+                <h3>No available recipes yet.</h3>
+                <h4 class="lead">Please wait. Until further announcement regarding with the recipes. <br>Thank you for understanding.</h4>
+            </div>
+        </div>
+        {% else %}
+        {% for recipe in recipes %}
+        <div class="col-md-4">
+            <div class="card mb-4 shadow-sm">
+                <img src="{{ url_for('static', filename='uploads/img/') }}/{{ recipe.img_path }}" 
+                    alt="" class="card-img-top card-img-responsive" focusable="false" role="img" >
+                <div class="card-body">
+                <h5 class="card-title text-truncate" title="{{ recipe.name }}">{{ recipe.name }}</h5>
+                <hr>
+                <p class="card-text" title="{{ recipe.description }}">
+                    {{ recipe.description|truncate(150) }}
+                </p>
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="btn-group">
+                        <a class="btn btn-sm btn-outline-secondary"
+                            href="{{ url_for('recipes.view', recipe=recipe.id) }}">View</a>
+                        <!-- <button type="button" class="btn btn-sm btn-outline-secondary" 
+                            {% if not user %}
+                            data-toggle="modal" data-target="#loginErrorModal"
+                            {% endif %}
+                            >Add to cart</button> -->
+                    </div>
+                <small class="text-muted">by {{ recipe.writer.name }}</small>
+                </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        {% endif %}
+    </div>
+</div>
+
+<div class="modal fade" id="loginErrorModal" tabindex="-1" role="dialog" aria-labelledby="loginErrorModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="loginErrorModalLabel">You are not logged in.</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Please login to add this recipe to cart.<br>
+                If you don't have an account, click 
+                <a href="{{ url_for('users.register') }}">here</a> to register.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <a class="btn btn-primary" href="{{ url_for('users.login') }}">Login</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
