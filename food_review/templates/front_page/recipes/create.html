@@ -8,7 +8,8 @@
             <div class="card-body">
                 <h3>Add Recipe</h3>
                 <hr>
-                <form action="{{ url_for('writers.recipes.save') }}" method="POST" enctype="multipart/form-data">
+                <form action="{{ url_for('writers.recipes.save') }}" method="POST" 
+                    enctype="multipart/form-data">
                     <div class="form-group">
                         <label for="name">Name</label>
                         <input type="text" name="name" id="name" 
@@ -25,10 +26,81 @@
                             <input type="file" name="image" id="image">
                         </div>
                     </div>
-                    <input type="submit" value="Post Recipe" class="btn btn-primary pull-right">
+                    <hr>
+                    <label for="">Ingredients</label>
+                    <div class="row">
+                        <div class="form-group col-md-5">
+                            <input type="text" name="component" class="form-control" id="component"
+                                placeholder="Component">
+                        </div>
+                        <div class="form-group col-md-5">
+                            <input type="text" name="measure" class="form-control" id="measure"
+                                placeholder="Measure">
+                        </div>
+                        <div class="col-md-2">
+                            <button type="button" class="btn btn-primary btn-block" 
+                                id="btn-add-ingredient">Add</button>
+                        </div>
+                    </div>
+                    <hr>
+                    <div id="ingredients-list">
+
+                    </div>
+                    <input type="hidden" name="ingredient">
+                    <input id="btn-submit" type="submit" value="Post Recipe" class="btn btn-primary pull-right">
                 </form>
             </div>
         </div>
     </div>
 </div>
 {% endblock content %}
+
+{% block scripts %}
+<script>
+    $(function() {
+        let ingredients_list = $('#ingredients-list')
+        let ingredients = [];
+
+        $('#btn-submit').click(function(e) {
+            $('input[name="ingredient"]').val(JSON.stringify(ingredients))
+        })
+
+        $('#btn-add-ingredient').click(function() {
+            let component = $('#component').val()
+            let measure = $('#measure').val()
+
+            ingredients.push({
+                component: component,
+                measure: measure
+            })
+
+            $('#component').val('')
+            $('#measure').val('')
+
+            let str = ''
+
+            ingredients.forEach(function(e, i) {
+                str += '<span class="ingredient-item" title="Click ingredient to remove." data-index="' + i + '">' + e.component + ' - ' 
+                    + e.measure + '</span><br>'
+            })
+
+            ingredients_list.html(str)
+
+            console.log(ingredients)
+        })
+
+        $('#ingredients-list').on('click', '.ingredient-item', function() {
+            let index = $(this).attr('data-index')
+            ingredients.splice(index, 1)
+            
+            let str = ''
+            ingredients.forEach(function(e, i) {
+                str += '<span class="ingredient-item" title="Click ingredient to remove." data-index="' + i + '">' + e.component + ' - ' 
+                    + e.measure + '</span><br>'
+            })
+
+            ingredients_list.html(str)
+        })
+    })
+</script>
+{% endblock scripts %}

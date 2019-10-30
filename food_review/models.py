@@ -144,15 +144,36 @@ class Recipe(object):
 
         result['writer'] = User(self.mysql).get(result['user_id'])
         result['reviews'] = list(Review(self.mysql).get_from_recipe(result['id']))
-
+        result['ingredients'] = list(Ingredient(self.mysql).get_from_recipe(result['id']))
+        print(result)
         return result
 
 class Ingredient(object):
     def __init__(self, mysql, ingredient_data=None):
+        self.mysql = mysql
+
         self.id = 0
-        self.food_id
-        self.component
-        self.measure
+        self.recipe_id = ingredient_data['recipe_id'] if not ingredient_data == None else None
+        self.component = ingredient_data['component'] if not ingredient_data == None else None
+        self.measure = ingredient_data['measure'] if not ingredient_data == None else None
+
+    def get(self, id):
+        query = 'SELECT * FROM ingredients WHERE id = {}'.format(id)
+
+        cursor = self.mysql.connection.cursor()
+        cursor.execute(query)
+        result = cursor.fetchall()
+
+        return result
+
+    def get_from_recipe(self, id):
+        query = 'SELECT * FROM ingredients WHERE recipe_id = {}'.format(id)
+
+        cursor = self.mysql.connection.cursor()
+        cursor.execute(query)
+        result = cursor.fetchall()
+
+        return result
 
     def sana_all(self): 
         query = 'SELECT * FROM ingredient'
@@ -162,3 +183,17 @@ class Ingredient(object):
         result = cursor.fetchall()
 
         return result
+
+    def save(self):
+        query = '''INSERT INTO ingredients (`component`, `measure`, `recipe_id`)
+            VALUES ("{}", "{}", "{}")'''.format(self.component, self.measure, 
+            self.recipe_id)
+        
+        cursor = self.mysql.connection.cursor()
+        cursor.execute(query)
+
+        self.mysql.connection.commit()
+
+        return self.get(cursor.lastrowid)
+
+    

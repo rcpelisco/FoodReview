@@ -23,11 +23,9 @@
         <h3>Ingredients</h3>
         <hr>
         <ul>
-          <li> asdasdasdasdasd</li>
-          <li> asdasdasdasdasd</li>
-          <li> asdasdasdasdasd</li>
-          <li> asdasdasdasdasd</li>
-          <li> asdasdasdasdasd</li>
+          {% for ingredient in recipe.ingredients %}
+          <li>{{ ingredient.component }} - {{ ingredient.measure }}</li>
+          {% endfor %}
         </ul>
         <hr>
         <div class="row">
