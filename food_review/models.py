@@ -1,29 +1,63 @@
 from datetime import datetime
 from food_review import bcrypt
 
-class User(object):
-    def __init__(self, mysql, user_data=None):
+class LoginCredentials(object):
+    def __init__(self, mysql, login_cred_data=None):
         self.mysql = mysql
-        
+
         self.id = 0
-        self.username = user_data['username'] if not user_data == None else None
-        self.email = user_data['email'] if not user_data == None else None
-        self.name = user_data['name'] if not user_data == None else None
-        self.password = user_data['password'] if not user_data == None else None
-        self.created_at = None
-        self.is_writer = user_data['is_writer'] if not user_data == None else False
+        self.username = login_cred_data['username'] if not login_cred_data == None else None
+        self.email = login_cred_data['email'] if not login_cred_data == None else None
+        self.password = login_cred_data['password'] if not login_cred_data == None else None
+        self.user_id = login_cred_data['user_id'] if not login_cred_data == None else None
 
     def save(self):
         hashed = bcrypt.generate_password_hash(self.password).decode('utf-8')
 
-        query = '''INSERT INTO users (`username`, `email`, `password`, `name`, `is_writer`)
-            values ("{}", "{}", "{}", "{}", "{}")'''.format(self.username, self.email, 
-            hashed, self.name, self.is_writer)
+        query = '''INSERT INTO login_credentials (`username`, `email`, `password`, `user_id`)
+            values ("{}", "{}", "{}", "{}")'''.format(self.username, self.email, 
+            hashed, self.user_id)
         
         cursor = self.mysql.connection.cursor()
         cursor.execute(query)
 
         self.mysql.connection.commit()
+
+    def login(self, cred):
+        query = 'SELECT * FROM login_credentials WHERE username="{}" OR email="{}"'.format(
+            cred['username'], cred['username'])
+
+        cursor = self.mysql.connection.cursor()
+        cursor.execute(query)
+        result = cursor.fetchone()
+        print(result)
+        if result and bcrypt.check_password_hash(result['password'], 
+            cred['password']):
+            return result
+            
+        return False
+
+class User(object):
+    def __init__(self, mysql, user_data=None):
+        self.mysql = mysql
+        
+        self.id = 0
+        self.first_name = user_data['first_name'] if not user_data == None else None
+        self.middle_name = user_data['middle_name'] if not user_data == None else None
+        self.last_name = user_data['last_name'] if not user_data == None else None
+        self.created_at = None
+        self.is_writer = user_data['is_writer'] if not user_data == None else False
+
+    def save(self):
+        query = '''INSERT INTO users (`first_name`, `middle_name`, `last_name`, `is_writer`)
+            values ("{}", "{}", "{}", "{}")'''.format(self.first_name, self.middle_name, self.last_name, self.is_writer)
+        
+        cursor = self.mysql.connection.cursor()
+        cursor.execute(query)
+
+        self.mysql.connection.commit()
+
+        return self.get(cursor.lastrowid)
 
     def get(self, id):
         query = 'SELECT * FROM users WHERE id={}'.format(id)
@@ -42,20 +76,6 @@ class User(object):
         result = cursor.fetchall()
 
         return result
-
-    def login(self, cred):
-        query = 'SELECT * FROM users WHERE username="{}" OR email="{}"'.format(
-            cred['username'], cred['username'])
-
-        cursor = self.mysql.connection.cursor()
-        cursor.execute(query)
-        result = cursor.fetchone()
-
-        if result and bcrypt.check_password_hash(result['password'], 
-            cred['password']):
-            return result
-            
-        return False
 
 class Review(object):
     def __init__(self, mysql, review_data=None):
@@ -87,6 +107,8 @@ class Review(object):
 
         for res in result:
             res['user'] = User(self.mysql).get(res['user_id'])
+            res['comments'] = list(Comment(self.mysql).get_from_review(res['id']))
+            print(res)
 
         return result
 
@@ -98,6 +120,39 @@ class Review(object):
         result = cursor.fetchall()
 
         return result
+
+class Comment(object):
+    def __init__(self, mysql, comment_data=None):
+        self.mysql = mysql
+
+        self.id = 0
+        self.content = comment_data['content'] if not comment_data == None else None
+        self.user_id = comment_data['user_id'] if not comment_data == None else None
+        self.review_id = comment_data['review_id'] if not comment_data == None else None
+        self.created_at = None
+
+    def save(self):
+        query = '''INSERT INTO comments (`content`, `user_id`, `review_id`)
+            VALUES ("{}", "{}", "{}")'''.format(self.content, self.user_id, 
+            self.review_id)
+        
+        cursor = self.mysql.connection.cursor()
+        cursor.execute(query)
+
+        self.mysql.connection.commit()
+
+    def get_from_review(self, review_id):
+        query = 'SELECT * FROM comments WHERE review_id = {}'.format(review_id)
+
+        cursor = self.mysql.connection.cursor()
+        cursor.execute(query)
+        result = cursor.fetchall()
+
+        for res in result:
+            res['user'] = User(self.mysql).get(res['user_id'])
+            
+        return result
+
 
 class Recipe(object):
     def __init__(self, mysql, recipe_data=None):
@@ -145,7 +200,7 @@ class Recipe(object):
         result['writer'] = User(self.mysql).get(result['user_id'])
         result['reviews'] = list(Review(self.mysql).get_from_recipe(result['id']))
         result['ingredients'] = list(Ingredient(self.mysql).get_from_recipe(result['id']))
-        print(result)
+        
         return result
 
 class Ingredient(object):

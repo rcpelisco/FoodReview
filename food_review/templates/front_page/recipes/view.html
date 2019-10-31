@@ -9,11 +9,11 @@
     <div class="row">
       <div class="col-md-4">
         <img src="{{ url_for('static', filename='uploads/img/') }}/{{ recipe.img_path }}" 
-          class="img-fluid" focusable="false" role="img" style="padding-bottom: 250px;">
+          class="img-fluid mb-2" focusable="false" role="img">
       </div>
       <div class="col-md-8">
         <h2 class="card-title">{{ recipe.name }}</h2>
-        <small>by <a href="">{{ recipe.writer.name }}</a></small>
+        <small>by <a href="">{{ recipe.writer.first_name }} {{ recipe.writer.last_name }}</a></small>
         <hr>
         <p class="card-text">
           {{ recipe.description }}
@@ -41,15 +41,6 @@
           <div class="col-sm-6">
             <h3>Reviews</h3>
           </div>
-          <!-- <div class="col-sm-6">
-            <h3 class="pull-right">
-              <div class="average-rating text-primary">
-                {% for star in range(5) %}
-                <i class="fa fa-star"></i>
-                {% endfor %}
-              </div>
-            </h3>
-          </div> -->
         </div>
         <hr>
         {% if recipe.reviews|length < 1 %}
@@ -63,7 +54,7 @@
         {% for review in recipe.reviews %}
         <div class="media">
           <div class="media-body ml-3">
-            <h5 class="mt-0">{{ review.user.name }}</h5>
+            <h5 class="mt-0">{{ review.user.first_name }} {{ review.user.last_name }}</h5>
             <div class="review-rating text-primary">
               {% for star in range(review.rating) %}
               <i class="fa fa-star"></i>
@@ -72,7 +63,32 @@
               <i class="fa fa-star-o"></i>
               {% endfor %}
             </div>
-            {{ review.content }}
+            {{ review.content }}<br>
+            <hr>
+            <div class="mt-2 ml-4">
+              {% for comment in review.comments %}
+              <div class="media">
+                <div class="media-body">
+                  <h5 class="mt-0">{{ comment.user.first_name }} {{ comment.user.last_name }}</h5>
+                  {{ comment.content }}
+                  <hr class="mt-1">
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+            <div class="row">
+              <div class="col">
+                <form action="{{ url_for('recipes.reviews.comments.save') }}" 
+                  method="POST" class="form mt-2 ml-4">
+                  <div class="form-group">
+                    <input type="text" name="content" id="" class="form-control"
+                      placeholder="Write a reply.">
+                    <input type="hidden" name="review_id" value="{{review.id}}">
+                    <input type="hidden" name="recipe_id" value="{{recipe.id}}">
+                  </div>
+                </form>
+              </div>
+            </div>
           </div>
         </div>
         <hr>

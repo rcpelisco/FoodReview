@@ -50,7 +50,8 @@
                 {% if user.is_writer == 1 %}
                 <a class="nav-item nav-link text-light" href="{{ url_for('writers.recipes.create') }}">Create Recipe</a>
                 {% endif %}
-                <a class="nav-item nav-link text-light" href="{{ url_for('users.account') }}"><strong>{{ user.name }}</strong></a>
+                <a class="nav-item nav-link text-light" href="{{ url_for('users.account') }}">
+                  <strong>{{ user.first_name }} {{ user.last_name }}</strong></a>
                 <a class="nav-item nav-link text-light" href="{{ url_for('writers.users.logout') }}">Logout</a>
                 {% endif %}
               </div>
