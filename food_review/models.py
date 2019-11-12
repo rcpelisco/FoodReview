@@ -7,16 +7,14 @@ class LoginCredentials(object):
 
         self.id = 0
         self.username = login_cred_data['username'] if not login_cred_data == None else None
-        self.email = login_cred_data['email'] if not login_cred_data == None else None
         self.password = login_cred_data['password'] if not login_cred_data == None else None
         self.user_id = login_cred_data['user_id'] if not login_cred_data == None else None
 
     def save(self):
         hashed = bcrypt.generate_password_hash(self.password).decode('utf-8')
 
-        query = '''INSERT INTO login_credentials (`username`, `email`, `password`, `user_id`)
-            values ("{}", "{}", "{}", "{}")'''.format(self.username, self.email, 
-            hashed, self.user_id)
+        query = '''INSERT INTO login_credentials (`username`, `password`, `user_id`)
+            values ("{}", "{}", "{}")'''.format(self.username, hashed, self.user_id)
         
         cursor = self.mysql.connection.cursor()
         cursor.execute(query)
@@ -24,8 +22,8 @@ class LoginCredentials(object):
         self.mysql.connection.commit()
 
     def login(self, cred):
-        query = 'SELECT * FROM login_credentials WHERE username="{}" OR email="{}"'.format(
-            cred['username'], cred['username'])
+        query = 'SELECT * FROM login_credentials WHERE username="{}"'.format(
+            cred['username'])
 
         cursor = self.mysql.connection.cursor()
         cursor.execute(query)
@@ -45,12 +43,18 @@ class User(object):
         self.first_name = user_data['first_name'] if not user_data == None else None
         self.middle_name = user_data['middle_name'] if not user_data == None else None
         self.last_name = user_data['last_name'] if not user_data == None else None
+        self.address = user_data['address'] if not user_data == None else None
+        self.phone_number = user_data['phone_number'] if not user_data == None else None
+        self.email_address = user_data['email_address'] if not user_data == None else None
         self.created_at = None
-        self.is_writer = user_data['is_writer'] if not user_data == None else False
+        self.user_type_id = user_data['user_type_id'] if not user_data == None else False
 
     def save(self):
-        query = '''INSERT INTO users (`first_name`, `middle_name`, `last_name`, `is_writer`)
-            values ("{}", "{}", "{}", "{}")'''.format(self.first_name, self.middle_name, self.last_name, self.is_writer)
+        query = '''INSERT INTO users (`first_name`, `middle_name`, `last_name`, 
+            `address`, `phone_number`, `email_address`, `user_type_id`)
+            values ("{}", "{}", "{}", "{}", "{}", "{}", "{}")'''.format(self.first_name, 
+            self.middle_name, self.last_name, self.address, self.phone_number, 
+            self.email_address, self.user_type_id)
         
         cursor = self.mysql.connection.cursor()
         cursor.execute(query)

@@ -17,13 +17,15 @@ def register():
             'first_name': request.form['first_name'],
             'middle_name': request.form['middle_name'],
             'last_name': request.form['last_name'],
-            'is_writer': 1,
+            'address': request.form['address'],
+            'email_address': request.form['email_address'],
+            'phone_number': request.form['phone_number'],
+            'user_type_id': 1,
         }
 
         user = User(db, user_data).save()
 
         login_credentials = {
-            'email': request.form['email'],
             'username': request.form['username'],
             'password': request.form['password'],
             'user_id': user['id']
