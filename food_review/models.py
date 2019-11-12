@@ -46,7 +46,6 @@ class User(object):
         self.address = user_data['address'] if not user_data == None else None
         self.phone_number = user_data['phone_number'] if not user_data == None else None
         self.email_address = user_data['email_address'] if not user_data == None else None
-        self.created_at = None
         self.user_type_id = user_data['user_type_id'] if not user_data == None else False
 
     def save(self):
@@ -90,7 +89,6 @@ class Review(object):
         self.rating = review_data['rating'] if not review_data == None else None
         self.user_id = review_data['user_id'] if not review_data == None else None
         self.recipe_id = review_data['recipe_id'] if not review_data == None else None
-        self.created_at = None
 
     def save(self):
         query = '''INSERT INTO reviews (`content`, `rating`, `user_id`, `recipe_id`)
@@ -133,7 +131,6 @@ class Comment(object):
         self.content = comment_data['content'] if not comment_data == None else None
         self.user_id = comment_data['user_id'] if not comment_data == None else None
         self.review_id = comment_data['review_id'] if not comment_data == None else None
-        self.created_at = None
 
     def save(self):
         query = '''INSERT INTO comments (`content`, `user_id`, `review_id`)
@@ -168,7 +165,6 @@ class Recipe(object):
         self.img_path = recipe_data['img_path'] if not recipe_data == None else None
         self.user_id = recipe_data['user_id'] if not recipe_data == None else None
         self.writer = None
-        self.created_at = None
         
     def save(self):
         query = '''INSERT INTO recipes (`name`, `description`, `user_id`, `img_path`)
@@ -203,16 +199,61 @@ class Recipe(object):
 
         result['writer'] = User(self.mysql).get(result['user_id'])
         result['reviews'] = list(Review(self.mysql).get_from_recipe(result['id']))
-        result['ingredients'] = list(Ingredient(self.mysql).get_from_recipe(result['id']))
-        
+        result['ingredients'] = list(RecipeIngredient(self.mysql).get_from_recipe(result['id']))
+        print(result)
         return result
+
+class RecipeIngredient(object):
+    def __init__(self, mysql, data=None):
+        self.mysql = mysql
+
+        self.id = 0
+        self.recipe = None
+        self.ingredients = None
+        self.recipe_id = data['recipe_id'] if not data == None else None
+        self.ingredient_id = data['ingredient_id'] if not data == None else None
+
+    def save(self):
+        query = '''INSERT INTO recipes_ingredients (`recipe_id`, `ingredient_id`)
+            VALUES ("{}", "{}")'''.format(self.recipe_id, self.ingredient_id)
+        
+        cursor = self.mysql.connection.cursor()
+        cursor.execute(query)
+
+        self.mysql.connection.commit()
+
+        return self.get(cursor.lastrowid)
+
+    def get(self, id):
+        query = 'SELECT * FROM recipes_ingredients WHERE id = {}'.format(id)
+
+        cursor = self.mysql.connection.cursor()
+        cursor.execute(query)
+        result = cursor.fetchone()
+
+        return result
+
+    def get_from_recipe(self, recipe_id):
+        query = 'SELECT * FROM recipes_ingredients WHERE recipe_id = {}'.format(recipe_id)
+
+        cursor = self.mysql.connection.cursor()
+        cursor.execute(query)
+        recipes_ingredients = cursor.fetchall()
+
+        ingredient = []
+
+        for ri in recipes_ingredients:
+            ingredient.append(Ingredient(self.mysql).get(ri['ingredient_id']))
+
+
+        return ingredient
 
 class Ingredient(object):
     def __init__(self, mysql, ingredient_data=None):
         self.mysql = mysql
 
         self.id = 0
-        self.recipe_id = ingredient_data['recipe_id'] if not ingredient_data == None else None
+        
         self.component = ingredient_data['component'] if not ingredient_data == None else None
         self.measure = ingredient_data['measure'] if not ingredient_data == None else None
 
@@ -221,16 +262,7 @@ class Ingredient(object):
 
         cursor = self.mysql.connection.cursor()
         cursor.execute(query)
-        result = cursor.fetchall()
-
-        return result
-
-    def get_from_recipe(self, id):
-        query = 'SELECT * FROM ingredients WHERE recipe_id = {}'.format(id)
-
-        cursor = self.mysql.connection.cursor()
-        cursor.execute(query)
-        result = cursor.fetchall()
+        result = cursor.fetchone()
 
         return result
 
@@ -244,9 +276,8 @@ class Ingredient(object):
         return result
 
     def save(self):
-        query = '''INSERT INTO ingredients (`component`, `measure`, `recipe_id`)
-            VALUES ("{}", "{}", "{}")'''.format(self.component, self.measure, 
-            self.recipe_id)
+        query = '''INSERT INTO ingredients (`component`, `measure`)
+            VALUES ("{}", "{}")'''.format(self.component, self.measure)
         
         cursor = self.mysql.connection.cursor()
         cursor.execute(query)
