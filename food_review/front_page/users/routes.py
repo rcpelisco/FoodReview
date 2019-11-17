@@ -11,19 +11,6 @@ def before_request():
     if 'user' in session:
         g.user = session['user']
 
-@users.route('/account')
-def account():
-    pass
-    # cart = Cart(db).get_user_all_unpaid_items(g.user['id'])
-    # bought_items = Cart(db).get_user_all_paid_items(g.user['id'])
-    # transaction_history = TransactionHistory(db).get_user_all(g.user['id'])
-    
-    # if g.user == None:
-    #     return redirect(url_for('front_page.index'))
-    # return render_template('front_page/users/index.html', 
-    #     user=g.user, cart=cart, bought_items=bought_items,
-    #     transaction_history=transaction_history)
-
 @users.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -33,11 +20,14 @@ def login():
         }
 
         login_credentials = LoginCredentials(db).login(credentials)
-        user = User(db).get(login_credentials['user_id'])
 
-        if user:
-            session['user'] = user
-            g.user = user
+        if login_credentials:
+
+            user = User(db).get(login_credentials['user_id'])
+
+            if user:
+                session['user'] = user
+                g.user = user
 
     if g.user:
         return redirect(url_for('front_page.index'))
@@ -50,13 +40,15 @@ def register():
             'first_name': request.form['first_name'],
             'middle_name': request.form['middle_name'],
             'last_name': request.form['last_name'],
-            'is_writer': 0,
+            'address': request.form['address'],
+            'phone_number': request.form['phone_number'],
+            'email_address': request.form['email_address'],
+            'user_type_id': 2,
         }
 
         user = User(db, user_data).save()
 
         login_credentials = {
-            'email': request.form['email'],
             'username': request.form['username'],
             'password': request.form['password'],
             'user_id': user['id']
@@ -67,10 +59,3 @@ def register():
         return redirect(url_for('users.login'))
 
     return render_template('front_page/register.html')
- 
-# @users.route('/transaction_history', methods=['GET'])
-# def transaction_history():
-#     history = User(db).get_history(session['user']['id'])
-#     return render_template('front_page/register.html',
-#         transaction_history=transaction_history,
-#         user=session['user'])

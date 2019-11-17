@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, g
 from food_review import db, ROOT_DIR
-from food_review.models import User, Recipe, Ingredient
+from food_review.models import User, Recipe, Ingredient, RecipeIngredient
 import os, datetime, random, json
 
 recipes = Blueprint('writers.recipes', __name__)
@@ -47,10 +47,17 @@ def save():
     recipe = Recipe(db, recipe_data)
     recipe = recipe.save()
 
+
     for ingredient in json.loads(request.form['ingredient']):
-        ingredient['recipe_id'] = recipe['id']
-        i = Ingredient(db, ingredient)
-        i.save()
+        i = Ingredient(db, ingredient).save()
+        
+        recipe_ingredient = {
+            'recipe_id': recipe['id'],
+            'ingredient_id': i['id']
+        }
+
+        ri = RecipeIngredient(db, recipe_ingredient).save()
+        
 
     return redirect(url_for('recipes.view', recipe=recipe['id']))
 
