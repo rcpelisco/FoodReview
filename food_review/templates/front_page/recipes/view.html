@@ -26,74 +26,24 @@
           {% for ingredient in recipe.ingredients %}
           <li>{{ ingredient.component }} - {{ ingredient.measure }}</li>
           {% endfor %}
+          <li>sunt in culpa qui officia deserunt mollit anim id est laborum.</li>
+          <li>sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</li>
+          <li>Lorem ipsum dolor sit amet</li>
+          <li>consectetur adipiscing elit</li>
+          <li>Ut enim ad minim veniam</li>
+          <li>quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</li>
+          <li>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</li>
+          <li>Excepteur sint occaecat cupidatat non proident</li>
         </ul>
         <hr>
         <div class="row">
           <div class="col">
             <button class="btn btn-outline-primary pull-right" data-toggle="modal"
-              data-target="#reviewModal">
+              data-target="#reviewModals">
               <i class="fa fa-pencil-square-o"></i> Write a review
             </button>
           </div>
         </div>
-        <br>
-        <div class="row">
-          <div class="col-sm-6">
-            <h3>Reviews</h3>
-          </div>
-        </div>
-        <hr>
-        {% if recipe.reviews|length < 1 %}
-        <div class="col-md-12">
-          <div class="div">
-            <h4>No reviews for this recipe yet.</h4>
-            <p class="lead">Be the first one to write a review for this recipe.</p>
-          </div>
-        </div>
-        {% else %}
-        {% for review in recipe.reviews %}
-        <div class="media">
-          <div class="media-body ml-3">
-            <h5 class="mt-0">{{ review.user.first_name }} {{ review.user.last_name }}</h5>
-            <div class="review-rating text-primary">
-              {% for star in range(review.rating) %}
-              <i class="fa fa-star"></i>
-              {% endfor %}
-              {% for star in range(5 - review.rating) %}
-              <i class="fa fa-star-o"></i>
-              {% endfor %}
-            </div>
-            {{ review.content }}<br>
-            <hr>
-            <div class="mt-2 ml-4">
-              {% for comment in review.comments %}
-              <div class="media">
-                <div class="media-body">
-                  <h5 class="mt-0">{{ comment.user.first_name }} {{ comment.user.last_name }}</h5>
-                  {{ comment.content }}
-                  <hr class="mt-1">
-                </div>
-              </div>
-              {% endfor %}
-            </div>
-            <div class="row">
-              <div class="col">
-                <form action="{{ url_for('recipes.reviews.comments.save') }}" 
-                  method="POST" class="form mt-2 ml-4">
-                  <div class="form-group">
-                    <input type="text" name="content" id="" class="form-control"
-                      placeholder="Write a reply.">
-                    <input type="hidden" name="review_id" value="{{review.id}}">
-                    <input type="hidden" name="recipe_id" value="{{recipe.id}}">
-                  </div>
-                </form>
-              </div>
-            </div>
-          </div>
-        </div>
-        <hr>
-        {% endfor %}
-        {% endif %}
       </div>
     </div>
   </div>
