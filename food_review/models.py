@@ -9,13 +9,12 @@ class LoginCredentials(object):
         self.username = login_cred_data['username'] if not login_cred_data == None else None
         self.password = login_cred_data['password'] if not login_cred_data == None else None
         self.user_id = login_cred_data['user_id'] if not login_cred_data == None else None
-        self.user_type_id = login_cred_data['user_type_id'] if not login_cred_data == None else None
 
     def save(self):
         hashed = bcrypt.generate_password_hash(self.password).decode('utf-8')
 
-        query = '''INSERT INTO login_credentials (`username`, `password`, `user_id`, `user_type_id`)
-            values ("{}", "{}", "{}", "{}")'''.format(self.username, hashed, self.user_id, self.user_type_id)
+        query = '''INSERT INTO login_credentials (`username`, `password`, `user_id`)
+            values ("{}", "{}", "{}")'''.format(self.username, hashed, self.user_id)
         
         cursor = self.mysql.connection.cursor()
         cursor.execute(query)
@@ -36,15 +35,6 @@ class LoginCredentials(object):
             
         return False
 
-    def get_user(self, id):
-        query = 'SELECT * FROM login_credentials WHERE id="{}"'.format(id)
-         
-        cursor = self.mysql.connection.cursor()
-        cursor.execute(query)
-        result = cursor.fetchone()
-
-        return User(self.mysql).get(result['user_id'])
-
 class User(object):
     def __init__(self, mysql, user_data=None):
         self.mysql = mysql
@@ -56,13 +46,14 @@ class User(object):
         self.address = user_data['address'] if not user_data == None else None
         self.phone_number = user_data['phone_number'] if not user_data == None else None
         self.email_address = user_data['email_address'] if not user_data == None else None
+        self.user_type_id = user_data['user_type_id'] if not user_data == None else False
 
     def save(self):
         query = '''INSERT INTO users (`first_name`, `middle_name`, `last_name`, 
-            `address`, `phone_number`, `email_address`)
-            values ("{}", "{}", "{}", "{}", "{}", "{}")'''.format(self.first_name, 
+            `address`, `phone_number`, `email_address`, `user_type_id`)
+            values ("{}", "{}", "{}", "{}", "{}", "{}", "{}")'''.format(self.first_name, 
             self.middle_name, self.last_name, self.address, self.phone_number, 
-            self.email_address)
+            self.email_address, self.user_type_id)
         
         cursor = self.mysql.connection.cursor()
         cursor.execute(query)
@@ -89,15 +80,6 @@ class User(object):
 
         return result
 
-    def get_login_cred(self, id):
-        query = 'SELECT * FROM login_cred WHERE user_id={}'.format(id)
-
-        cursor = self.mysql.connection.cursor()
-        cursor.execute(query)
-        result = cursor.fetchone()
-
-        return result
-
 class Review(object):
     def __init__(self, mysql, review_data=None):
         self.mysql = mysql
@@ -105,13 +87,13 @@ class Review(object):
         self.id = 0
         self.content = review_data['content'] if not review_data == None else None
         self.rating = review_data['rating'] if not review_data == None else None
-        self.login_cred_id = review_data['login_cred_id'] if not review_data == None else None
+        self.user_id = review_data['user_id'] if not review_data == None else None
         self.recipe_id = review_data['recipe_id'] if not review_data == None else None
 
     def save(self):
-        query = '''INSERT INTO reviews (`content`, `rating`, `login_cred_id`, `recipe_id`)
+        query = '''INSERT INTO reviews (`content`, `rating`, `user_id`, `recipe_id`)
             VALUES ("{}", "{}", "{}", "{}")'''.format(self.content, self.rating, 
-            self.login_cred_id, self.recipe_id)
+            self.user_id, self.recipe_id)
         
         cursor = self.mysql.connection.cursor()
         cursor.execute(query)
@@ -126,8 +108,9 @@ class Review(object):
         result = cursor.fetchall()
 
         for res in result:
-            res['user'] = LoginCredentials(self.mysql).get_user(res['login_cred_id'])
+            res['user'] = User(self.mysql).get(res['user_id'])
             res['comments'] = list(Comment(self.mysql).get_from_review(res['id']))
+            print(res)
 
         return result
 
@@ -146,12 +129,12 @@ class Comment(object):
 
         self.id = 0
         self.content = comment_data['content'] if not comment_data == None else None
-        self.login_cred_id = comment_data['login_cred_id'] if not comment_data == None else None
+        self.user_id = comment_data['user_id'] if not comment_data == None else None
         self.review_id = comment_data['review_id'] if not comment_data == None else None
 
     def save(self):
-        query = '''INSERT INTO comments (`content`, `login_cred_id`, `review_id`)
-            VALUES ("{}", "{}", "{}")'''.format(self.content, self.login_cred_id, 
+        query = '''INSERT INTO comments (`content`, `user_id`, `review_id`)
+            VALUES ("{}", "{}", "{}")'''.format(self.content, self.user_id, 
             self.review_id)
         
         cursor = self.mysql.connection.cursor()
@@ -167,7 +150,7 @@ class Comment(object):
         result = cursor.fetchall()
 
         for res in result:
-            res['user'] = LoginCredentials(self.mysql).get_user(res['login_cred_id'])
+            res['user'] = User(self.mysql).get(res['user_id'])
             
         return result
 
@@ -180,13 +163,13 @@ class Recipe(object):
         self.name = recipe_data['name'] if not recipe_data == None else None
         self.description = recipe_data['description'] if not recipe_data == None else None
         self.img_path = recipe_data['img_path'] if not recipe_data == None else None
-        self.login_cred_id = recipe_data['login_cred_id'] if not recipe_data == None else None
+        self.user_id = recipe_data['user_id'] if not recipe_data == None else None
         self.writer = None
         
     def save(self):
-        query = '''INSERT INTO recipes (`name`, `description`, `login_cred_id`, `img_path`)
+        query = '''INSERT INTO recipes (`name`, `description`, `user_id`, `img_path`)
             VALUES ("{}", "{}", "{}", "{}")'''.format(self.name, self.description, 
-            self.login_cred_id, self.img_path)
+            self.user_id, self.img_path)
         
         cursor = self.mysql.connection.cursor()
         cursor.execute(query)
@@ -203,7 +186,7 @@ class Recipe(object):
         result = cursor.fetchall()
 
         for res in result:
-            res['writer'] = LoginCredentials(self.mysql).get_user(res['login_cred_id'])
+            res['writer'] = User(self.mysql).get(res['user_id'])
 
         return result
 
@@ -214,11 +197,10 @@ class Recipe(object):
         cursor.execute(query)
         result = cursor.fetchone()
 
-        result['writer'] = LoginCredentials(self.mysql).get_user(result['login_cred_id'])
+        result['writer'] = User(self.mysql).get(result['user_id'])
         result['reviews'] = list(Review(self.mysql).get_from_recipe(result['id']))
         result['ingredients'] = list(RecipeIngredient(self.mysql).get_from_recipe(result['id']))
         print(result)
-        
         return result
 
 class RecipeIngredient(object):

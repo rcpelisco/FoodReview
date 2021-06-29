@@ -20,6 +20,7 @@ def register():
             'address': request.form['address'],
             'email_address': request.form['email_address'],
             'phone_number': request.form['phone_number'],
+            'user_type_id': 1,
         }
 
         user = User(db, user_data).save()
@@ -27,8 +28,7 @@ def register():
         login_credentials = {
             'username': request.form['username'],
             'password': request.form['password'],
-            'user_id': user['id'],
-            'user_type_id': 1,
+            'user_id': user['id']
         }
 
         LoginCredentials(db, login_credentials).save()

@@ -15,6 +15,10 @@ def before_request():
 @recipes.route('/create', methods=['GET'])
 def create():
     return render_template('front_page/recipes/create.html', user=g.user)
+    # item = Item(db).get(item)
+    # user = session['user'] if 'user' in session else None
+    # return render_template('front_page/recipes/view.html', 
+    #     user=user, item=item)
 
 @recipes.route('/save', methods=['POST'])
 def save():
@@ -27,9 +31,6 @@ def save():
     
     relative_path = os.path.join('static', 'uploads', 'img')
     path_target = os.path.join(ROOT_DIR, relative_path)
-    
-    if not os.path.exists(path_target):
-        os.makedirs(path_target)
 
     if img_path != '' and image != None:
         img_path = convert_filename(img_path)
@@ -40,7 +41,7 @@ def save():
         'name': request.form['name'],
         'description': request.form['description'],
         'img_path': img_path,
-        'login_cred_id': g.user['login_cred_id']
+        'user_id': g.user['id']
     }
 
     recipe = Recipe(db, recipe_data)

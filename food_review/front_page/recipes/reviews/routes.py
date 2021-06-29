@@ -16,7 +16,7 @@ def save():
         'content': request.form['content'],
         'rating': request.form['rating'],
         'recipe_id': request.form['recipe_id'],
-        'login_cred_id': g.user['login_cred_id']
+        'user_id': g.user['id']
     }
 
     review = Review(db, review_data)
