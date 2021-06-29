@@ -24,6 +24,8 @@ def login():
         if login_credentials:
 
             user = User(db).get(login_credentials['user_id'])
+            user['login_cred_id'] = login_credentials['id']
+            user['user_type_id'] = login_credentials['user_type_id']
 
             if user:
                 session['user'] = user
@@ -43,7 +45,6 @@ def register():
             'address': request.form['address'],
             'phone_number': request.form['phone_number'],
             'email_address': request.form['email_address'],
-            'user_type_id': 2,
         }
 
         user = User(db, user_data).save()
@@ -51,7 +52,8 @@ def register():
         login_credentials = {
             'username': request.form['username'],
             'password': request.form['password'],
-            'user_id': user['id']
+            'user_id': user['id'],
+            'user_type_id': 2,
         }
 
         LoginCredentials(db, login_credentials).save()

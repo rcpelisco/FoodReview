@@ -15,7 +15,7 @@ def save():
     comment_data = {
         'content': request.form['content'],
         'review_id': request.form['review_id'],
-        'user_id': g.user['id']
+        'login_cred_id': g.user['login_cred_id']
     }
 
     comment = Comment(db, comment_data)
